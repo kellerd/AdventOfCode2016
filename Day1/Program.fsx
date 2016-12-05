@@ -37,16 +37,6 @@ type KeepGoing =
     | KeepGoing of Move
     | Stop
 
-let (|Prefix|_|) (p : string) (s : string) = 
-    if s.StartsWith(p) then Some(s.Substring(p.Length))
-    else None
-
-let (|Int|_|) input = 
-    input
-    |> Int32.TryParse
-    |> function 
-    | true, int -> Some int
-    | _ -> None
 
 let parseDir (input : string) = 
     match input.Trim() with
