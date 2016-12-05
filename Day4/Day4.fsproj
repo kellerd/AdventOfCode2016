@@ -47,9 +47,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <None Include="Program.fsx" />
     <None Include="App.config" />
+    <None Include="Program.fsx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Library\Library.fsproj">

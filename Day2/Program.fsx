@@ -1,6 +1,7 @@
 ﻿// Learn more about F# at http://fsharp.org
 // See the 'F# Tutorial' project for more help.
 #r "bin/Debug/Library.dll"
+
 open Advent.Library
 open System.IO
 open System
@@ -21,9 +22,14 @@ let keyPad2 =
               [ 'x'; 'x'; 'x'; 'D'; 'x'; 'x'; 'x' ]
               [ 'x'; 'x'; 'x'; 'x'; 'x'; 'x'; 'x' ] ]
 
-type Instructions = Left | Up | Right | Down
+type Instructions = 
+    | Left
+    | Up
+    | Right
+    | Down
 
-let mapInstr = function 
+let mapInstr = 
+    function 
     | 'U' -> Up
     | 'D' -> Down
     | 'L' -> Left
@@ -62,19 +68,12 @@ let breakCode keyPad start input =
     |> fst
     |> String
 
-test (breakCode keyPad (2, 2)) input1 
-|> is "1985"
-
-test (breakCode keyPad2 (3, 1)) input1 
-|> is "5DB3"
-
-test (breakCode keyPad (2,2)) (File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt")) 
-|> is "99332"
-
+test (breakCode keyPad (2, 2)) input1 |> is "1985"
+test (breakCode keyPad2 (3, 1)) input1 |> is "5DB3"
+test (breakCode keyPad (2, 2)) (File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt")) |> is "99332"
 File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt")
 |> breakCode keyPad (2, 2)
 |> printfn "%s"
-
 File.ReadAllText(__SOURCE_DIRECTORY__ + "\input2.txt")
 |> breakCode keyPad2 (3, 1)
 |> printfn "%s"

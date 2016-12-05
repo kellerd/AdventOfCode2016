@@ -1,10 +1,12 @@
 ﻿// Learn more about F# at http://fsharp.org
 // See the 'F# Tutorial' project for more help.
 #r "bin/Debug/Library.dll"
+
 open System
 open System.IO
 open System.Linq
 open Advent.Library
+
 type Direction = 
     | North
     | South
@@ -19,7 +21,7 @@ type Distance =
     | Blocks of int
     static member (+) (Blocks(x), Blocks(y)) = Blocks(x + y)
     static member (-) (Blocks(x), Blocks(y)) = Blocks(x - y)
-    static member Abs (Blocks(x)) = abs x |> Blocks
+    static member Abs(Blocks(x)) = abs x |> Blocks
 
 type Move = Turns * Distance
 
@@ -37,7 +39,6 @@ type KeepGoing =
     | KeepGoing of Move
     | Stop
 
-
 let parseDir (input : string) = 
     match input.Trim() with
     | Prefix "R" (Int i) -> (Right, Blocks i)
@@ -45,12 +46,11 @@ let parseDir (input : string) =
     | x -> failwith <| sprintf "Couldn't match %s" x
 
 let parse (textInstructions : string) = textInstructions.Split([| ',' |]) |> Array.map parseDir
-
 let log = id
+
 //    (fun x -> 
 //    printfn "%A" x
 //    x)
-
 let move state move = 
     let (newDir, newDistance) = move |> log
     match state.LastDirection, newDir with
@@ -76,9 +76,11 @@ let doMoves =
 let findAddresses input = 
     Seq.append [ start ] <| (Seq.mapFold (fun state m -> 
                                  let newState = move state m
+                                 
                                  let result = 
                                      if newState.North = state.North then 
                                          let (Blocks e1, Blocks e2) = newState.East, state.East
+                                         
                                          let by = 
                                              if (e1 - e2) > 0 then 1
                                              else -1
@@ -88,6 +90,7 @@ let findAddresses input =
                                          }
                                      else 
                                          let (Blocks e1, Blocks e2) = newState.North, state.North
+                                         
                                          let by = 
                                              if (e1 - e2) > 0 then 1
                                              else -1
@@ -121,38 +124,18 @@ let findTwice textInstructions =
     |> defaultArg
     <| (Blocks -1, Blocks -1)
 
-
-test travel "R3, L2" 
-|> is (Blocks 5)
-
-test travel "R2, R2, R2"
-|> is  (Blocks 2)
-
-test travel "R5, L5, R5, R3" 
-|> is (Blocks 12)
-
-test travel (File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt"))
-|> is  (Blocks 241)
-
-test findTwice "R3, L2"
-|> is  (Blocks -1, Blocks -1)
-
-test findTwice "R2, R2, R2, R2" 
-|> is (Blocks 0, Blocks 0)
-
-test findTwice "R5, L5, R5, R3" 
-|> is (Blocks -1, Blocks -1)
-
-test (findTwice >> sumDistances) "R8, R4, R4, R8" 
-|> is (Blocks 4)
-
-
+test travel "R3, L2" |> is (Blocks 5)
+test travel "R2, R2, R2" |> is (Blocks 2)
+test travel "R5, L5, R5, R3" |> is (Blocks 12)
+test travel (File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt")) |> is (Blocks 241)
+test findTwice "R3, L2" |> is (Blocks -1, Blocks -1)
+test findTwice "R2, R2, R2, R2" |> is (Blocks 0, Blocks 0)
+test findTwice "R5, L5, R5, R3" |> is (Blocks -1, Blocks -1)
+test (findTwice >> sumDistances) "R8, R4, R4, R8" |> is (Blocks 4)
 File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt")
 |> travel
 |> printfn "%A"
-
 File.ReadAllText(__SOURCE_DIRECTORY__ + "\input2.txt")
 |> findTwice
 |> sumDistances
 |> printfn "%A"
-
