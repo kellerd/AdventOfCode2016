@@ -8,8 +8,7 @@ open System
 
 let parse input = 
     input
-    |> Array.filter (fun (str : string) -> str.Length > 0)
-    |> Array.map (fun (str : string) -> str.Trim().ToCharArray())
+    |> Array.map (fun (str : string) -> str.ToCharArray())
     |> array2D
 
 let getMessage chooserAlgorithm arr : char [] = 
@@ -17,7 +16,6 @@ let getMessage chooserAlgorithm arr : char [] =
     //.[*,column] gets row as array, .[*,column..column2] gets as matrix
     Array.init letterLen (fun column -> 
         arr.[*, column]
-        |> Seq.cast<'a>
         |> Seq.countBy id
         |> chooserAlgorithm
         |> fst)
@@ -48,10 +46,12 @@ File.ReadAllLines(__SOURCE_DIRECTORY__ + "\input.txt")
 |> parse
 |> getMessage (Seq.maxBy snd)
 |> String
+
 test (parse
       >> getMessage (Seq.minBy snd)
       >> String) (input1.Split([| '\n' |]))
 |> is "advent"
+
 File.ReadAllLines(__SOURCE_DIRECTORY__ + "\input.txt")
 |> parse
 |> getMessage (Seq.minBy snd)
