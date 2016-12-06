@@ -28,13 +28,15 @@ let getPassword2 input =
                                    && 0uy = hash.[1]
                                    && nibble1 hash.[2] = 0uy
                                    && nibble2 hash.[2] <= 7uy)
-    |> Seq.scan (fun map hash -> 
-        let h = nibble2 hash.[2]
-        if Map.containsKey h map then map
-        else Map.add h (nibble1 hash.[3]) map
-    ) Map.empty<byte,byte>
-    |> Seq.takeWhile(fun map -> map.Count <= 8)  
-    |> Seq.collect(Map.toSeq)
+    |> Seq.distinctBy (fun h->Array.get h 2 |> nibble2 )
+    |> Seq.map (fun h -> Array.get h 3 |> nibble1, (Array.get h 2 |> nibble2))
+//    |> Seq.scan (fun map hash -> 
+//        let h = nibble2 hash.[2]
+//        if Map.containsKey h map then map
+//        else Map.add h (nibble1 hash.[3]) map
+//    ) Map.empty<byte,byte>
+ //   |> Seq.takeWhile(fun map -> map.Count <= 8)  
+ //   |> Seq.collect(Map.toSeq)
     |> Seq.toList
 
 test getPassword "abc" |> is "18f47a30"
