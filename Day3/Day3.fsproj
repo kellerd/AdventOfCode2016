@@ -50,6 +50,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="Program.fsx" />
     <None Include="App.config" />
+    <None Include="Test.fsx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Library\Library.fsproj">

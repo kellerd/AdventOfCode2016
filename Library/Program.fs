@@ -28,3 +28,27 @@ module Library =
         |> function 
         | true, int -> Some int
         | _ -> None
+
+    let log = id
+    //let log x = printfn "%A" x ; x
+
+    
+    let traverseResultM f arr =
+
+        // define the monadic functions
+        let (>>=) x f = Option.bind f x
+        let retn = Some
+
+        // define a "cons" function
+        let cons  = Array.create 1 >> Array.append 
+
+        // right fold over the list
+        let initState = retn [||]
+        let folder head tail = 
+            f head >>= (fun h -> 
+            tail >>= (fun t ->
+            retn (cons h t) ))
+
+        Array.foldBack folder arr initState 
+
+    let sequenceResultM x = traverseResultM id x

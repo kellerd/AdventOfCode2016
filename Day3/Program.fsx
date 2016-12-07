@@ -54,28 +54,7 @@ let findTriangles2 =
                                   xs.[6] |])
 
 let countTriangles2 = findTriangles2 >> Array.length
-let input3 = "
-101 301 501
-102 302 502
-103 303 503
-201 401 601
-202 402 602
-203 403 603
-"
 
-parse2 input3
-test findTriangles input1 |> is [||]
-test findTriangles input2 |> is (Array.replicate 6 ([| 3; 4; 5 |]))
-test countTriangles input1 |> is 0
-test countTriangles input2 |> is 6
-test findTriangles2 input3 |> is
-[| [| 101; 102; 103 |]
-   [| 301; 302; 303 |]
-   [| 501; 502; 503 |]
-   [| 201; 202; 203 |]
-   [| 401; 402; 403 |]
-   [| 601; 602; 603 |] |]
-test countTriangles2 input3 |> is 6
 File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt")
 |> countTriangles
 |> printfn "%A"

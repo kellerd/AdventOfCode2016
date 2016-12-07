@@ -5,10 +5,10 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>c490e2c9-a8b8-4d23-b58a-37eea90c669c</ProjectGuid>
+    <ProjectGuid>{a0ecab6b-0b37-4974-b57f-4f02b7f24f53}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Day6</RootNamespace>
-    <AssemblyName>Day6</AssemblyName>
+    <AssemblyName>Day7</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>

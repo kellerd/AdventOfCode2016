@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Program.fsx" />
+    <None Include="Test.fsx" />
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

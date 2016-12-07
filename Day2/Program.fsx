@@ -1,26 +1,22 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' project for more help.
-#r "bin/Debug/Library.dll"
-
-open Advent.Library
-open System.IO
+﻿open System.IO
 open System
-
+#r "bin/Debug/Library.dll"
+open Advent.Library
 let keyPad = 
-    array2D [ [ 'x'; 'x'; 'x'; 'x'; 'x' ]
-              [ 'x'; '1'; '2'; '3'; 'x' ]
-              [ 'x'; '4'; '5'; '6'; 'x' ]
-              [ 'x'; '7'; '8'; '9'; 'x' ]
-              [ 'x'; 'x'; 'x'; 'x'; 'x' ] ]
+    array2D [ [ None; None; None; None; None ]
+              [ None; Some '1'; Some '2'; Some '3'; None ]
+              [ None; Some '4'; Some '5'; Some '6'; None ]
+              [ None; Some '7'; Some '8'; Some '9'; None ]
+              [ None; None; None; None; None ] ]
 
 let keyPad2 = 
-    array2D [ [ 'x'; 'x'; 'x'; 'x'; 'x'; 'x'; 'x' ]
-              [ 'x'; 'x'; 'x'; '1'; 'x'; 'x'; 'x' ]
-              [ 'x'; 'x'; '2'; '3'; '4'; 'x'; 'x' ]
-              [ 'x'; '5'; '6'; '7'; '8'; '9'; 'x' ]
-              [ 'x'; 'x'; 'A'; 'B'; 'C'; 'x'; 'x' ]
-              [ 'x'; 'x'; 'x'; 'D'; 'x'; 'x'; 'x' ]
-              [ 'x'; 'x'; 'x'; 'x'; 'x'; 'x'; 'x' ] ]
+    array2D [ [ None; None; None; None; None; None; None ]
+              [ None; None; None; Some '1'; None; None; None ]
+              [ None; None; Some '2'; Some '3'; Some '4'; None; None ]
+              [ None; Some '5'; Some '6'; Some '7'; Some '8';Some  '9'; None ]
+              [ None; None; Some 'A'; Some 'B'; Some 'C'; None; None ]
+              [ None; None; None; Some 'D'; None; None; None ]
+              [ None; None; None; None; None; None; None ] ]
 
 type Instructions = 
     | Left
@@ -51,7 +47,7 @@ let nextKey keyPad (y, x) instruction =
         | Left -> y, x - 1
         | Right -> y, x + 1
     match newResult ||> Array2D.get keyPad with
-    | 'x' -> y, x
+    | None -> y, x
     | _ -> newResult
 
 let foldCodes keyPad start codes = 
@@ -66,14 +62,12 @@ let breakCode keyPad start input =
            |> Array.map mapInstr
            |> foldCodes keyPad state) start
     |> fst
-    |> String
+    |> sequenceResultM
+    |> Option.map String
 
-test (breakCode keyPad (2, 2)) input1 |> is "1985"
-test (breakCode keyPad2 (3, 1)) input1 |> is "5DB3"
-test (breakCode keyPad (2, 2)) (File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt")) |> is "99332"
 File.ReadAllText(__SOURCE_DIRECTORY__ + "\input.txt")
 |> breakCode keyPad (2, 2)
-|> printfn "%s"
+|> printfn "%A"
 File.ReadAllText(__SOURCE_DIRECTORY__ + "\input2.txt")
 |> breakCode keyPad2 (3, 1)
-|> printfn "%s"
+|> printfn "%A"
