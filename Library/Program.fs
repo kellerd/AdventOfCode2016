@@ -7,7 +7,7 @@ module Library =
     
     let is expectedResult result = 
         if result <> expectedResult then 
-            printfn "Got %A, expected %A" result expectedResult
+            printfn "Got:\r\n%A,\r\nExpected:\r\n%A" result expectedResult
             false
         else 
             printfn "It worked: %A" result
