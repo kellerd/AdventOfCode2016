@@ -17,7 +17,26 @@ module Library =
         if s.StartsWith(p) then Some(s.Substring(p.Length))
         else None
 
-    let (|Until|_|) (p : char) (s : string) = 
+    let (|SplitAt|) (n: int) (s : string) = 
+        let n = min n s.Length |> max 0
+        s.ToCharArray() |> Array.splitAt n
+
+    
+    let (|InTwo|_|) (c: char) (s : char list) = 
+        match (s |> Array.ofList |> System.String).Split([| c |]) with
+        | [|a;b|] -> Some(a,b)
+        | _ -> None
+    
+    let (|Middle|_|) (p : string) (s : string) = 
+        let index = s.IndexOf p
+        if index = -1 then None
+        else Some(s.Substring(0,index), s.Substring(index,p.Length), (if index + p.Length > s.Length then "" else s.Substring(index + p.Length))) 
+
+    let f = function
+        | Middle "x" (a,b,c) -> Some (a,b,c)
+        | _ -> None
+    
+    let (|TakeWhile|_|) (p : char) (s : string) = 
         match s.IndexOf(p) with
         | -1 -> None
         | index -> Some (s.Substring(0,index), s.Substring(index))
