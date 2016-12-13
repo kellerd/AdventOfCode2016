@@ -42,8 +42,8 @@ let doWork registers instructions  =
 
 
 let file = "\input.txt"
-let instructions = File.ReadAllLines(__SOURCE_DIRECTORY__ + file) |> Array.map parse |> doWork [| 0;0;0;0;0 |]
-let instructions = File.ReadAllLines(__SOURCE_DIRECTORY__ + file) |> Array.map parse |> doWork [| 0;0;1;0;0 |]
+File.ReadAllLines(__SOURCE_DIRECTORY__ + file) |> Array.map parse |> doWork [| 0;0;0;0;0 |]
+File.ReadAllLines(__SOURCE_DIRECTORY__ + file) |> Array.map parse |> doWork [| 0;0;1;0;0 |]
 
 let input = 
     @"cpy 41 a
