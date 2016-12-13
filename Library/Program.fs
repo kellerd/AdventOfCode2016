@@ -47,6 +47,12 @@ module Library =
         |> function 
         | true, int -> Some int
         | _ -> None
+    let (|Int64|_|) input = 
+        input
+        |> Int64.TryParse
+        |> function 
+        | true, int -> Some int
+        | _ -> None
 
     let log = id
     //let log x = printfn "%A" x ; x
