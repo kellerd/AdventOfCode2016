@@ -1,39 +1,46 @@
 ﻿open System.Security.Cryptography
 #r "../packages/FSharp.Collections.ParallelSeq/lib/net40/FSharp.Collections.ParallelSeq.dll"
+
 open FSharp.Collections.ParallelSeq
-let nibble2 (b : byte) = b &&& 0x0Fuy
-let nibble1 (b : byte) = (b &&& 0xF0uy) >>> 4
-let md5 = MD5.Create()
-let hash input i = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input + i.ToString()))
-        
+open System.Collections.Generic
+open System
 
-let getPassword nth input = 
-    Seq.initInfinite (hash input)
-    |> PSeq.mapi (fun id t -> id,t)
-    |> PSeq.filter (fun (_,hash) -> Array.windowed 3 hash |> Array.exists (fun [|x;y;z|] -> (x = y) && x = z)
-    |> PSeq.sort fst 
-    |> Seq.scan (fun (tests,matchesHashes) (index,newHash) ->
-                    let foundMatches,newTests = 
-                        match tests with 
-                        | [] -> [(index,newHash),(index,newHash)]
-                        | [first,first'] when first=first' -> [(index,newHash),first]
-                        | ((lastIndex,lastHash),_)::tests -> ((index,newHash),(lastIndex,lastHash))::tests |> List.partition (fun ((index2,hash2),(index1,hash1)) -> index2 - index1 < 1000 && Array.windowed 5 hash2 |> Array.exists (fun [|a;b;c;d;e|] -> a = b && b ==c && c == d && d == e)) 
-                    let newMatches = foundMatches |> List.map snd
-
-                    newTests,(newMatches @ matchesHashes)
-                 ) ([],[])
-    |> Seq.takeWhile (fun (_,matchedHashes) -> matchedHashes.Length <= nth)
-
-let getPassword2 input = 
-    Seq.initInfinite (hash input)
-    |> Seq.filter (fun hash -> 0uy = hash.[0] && 0uy = hash.[1] && hash.[2] <= 7uy)
-    |> Seq.distinctBy (fun hash -> hash.[2])
-    |> Seq.truncate 8
-    |> Seq.sortBy (fun hash -> hash.[2])
-    |> Seq.map (fun hash -> nibble1 hash.[3] |> sprintf "%x")
-    |> String.concat ""
-
+let hash (input,i) = 
+    use md5 = MD5.Create()
+    let hashf (input:string) = (input |> System.Text.Encoding.UTF8.GetBytes |> md5.ComputeHash |> BitConverter.ToString).Replace("-","").ToLower()
+    let mutable hash' = input + i.ToString()
+    for _ in 0..2015 do 
+        hash' <- hashf hash' 
+    hashf hash'
 let input = "yjdafjpo"
+let memoize f = 
+    let cache = Dictionary<_, _>()
+    fun x ->
+        if cache.ContainsKey(x) then cache.[x] 
+        else let res = f x
+             cache.[x] <- res
+             res
+let hash' = memoize hash
+let isEqualSequence n hash = 
+    Seq.windowed n hash |> Seq.filter (fun bytes -> bytes |> Seq.forall (fun (b:char) -> b = Seq.head bytes))
 
-getPassword 64 input
-getPassword2 input
+let genHashes input = 
+    PSeq.init 27824 (fun i -> i,hash' (input,i))
+    |> PSeq.filter (fun (i,hash) -> isEqualSequence 3 hash |> Seq.isEmpty |> not)
+    |> PSeq.toArray
+let hashes = genHashes input
+let fives  = 
+    let d = System.Collections.Generic.HashSet<_>()
+    hashes |> PSeq.iter (fun (i,hash) -> isEqualSequence 5 hash |> PSeq.map(fun bytes -> (i,bytes.[0])) |> PSeq.distinctBy fst |> PSeq.iter (d.Add >> ignore) ) 
+    d
+let validFive i char = Seq.exists (fun (ind,c) -> ind > i && ind <= i + 1000 && char = c) fives
+let solve nth input = 
+    hashes
+    |> PSeq.filter (fun (i,hash) -> isEqualSequence 3 hash |> Seq.map (Array.item 0) |> Seq.exists(validFive i))
+    |> PSeq.sortBy fst
+    |> PSeq.toArray
+    |> Array.tryItem nth
+
+#time
+solve 63 input
+
