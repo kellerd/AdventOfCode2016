@@ -55,6 +55,7 @@ module Library =
         | _ -> None
 
     open System.Text.RegularExpressions
+    open System.Collections.Generic
 
     let (|Match|_|) (pat:string) (inp:string) =
         let m = Regex.Match(inp, pat) in
@@ -62,8 +63,9 @@ module Library =
         then Some (List.tail [ for g in m.Groups -> g.Value ])
         else None
 
-    let log = id
-    //let log x = printfn "%A" x ; x
+    let log x = printfn "%A" x ; x
+    
+    let logs s x = printfn "%s: %A" s x ; x
 
     
     let traverseResultM f arr =
@@ -85,3 +87,11 @@ module Library =
         Array.foldBack folder arr initState 
 
     let sequenceResultM x = traverseResultM id x
+
+    let memoize f = 
+        let cache = Dictionary<_, _>()
+        fun x ->
+            if cache.ContainsKey(x) then cache.[x] 
+            else let res = f x
+                 cache.[x] <- res
+                 res
