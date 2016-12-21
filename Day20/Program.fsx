@@ -11,26 +11,25 @@ let collapse ranges =
     |> Array.sortBy (fun (Range(a,b)) -> a)
     |> Array.fold (fun state elem ->
                   match state,elem with
-                  | [],Range(rbl,rbh) -> [Range(rbl,rbh)]
-                  | Range(ral,rah )::tail,Range(rbl,rbh) when rah >= rbh -> state
-                  | Range(ral,rah )::tail,Range(rbl,rbh) when rah + 1u >= rbl -> Range (ral,rbh)::tail
-                  | tail,Range(rbl,rbh) -> elem::tail) []
+                  | [],Range(loB,hiB) -> [Range(loB,hiB)]
+                  | Range(_,hiA )::_,Range(_,hiB) when hiA >= hiB -> state
+                  | Range(loA,hiA )::tail,Range(loB,hiB) when hiA + 1u >= loB -> Range (loA,hiB)::tail
+                  | _,_ -> elem::state) []
     |> List.rev
 
 #time
 let invalid = 
     System.IO.File.ReadAllLines (__SOURCE_DIRECTORY__ + file)
     |> parse 
-    |> Array.sortBy (fun (Range(a,b)) -> a)
     |> collapse 
 
 let valid = Seq.unfold (fun (elem,states) ->
                             match elem,states with
                             | _,[] -> None
-                            | next,Range(rbl,rbh)::_ when next >= rbl && rbh = System.UInt32.MaxValue -> None
-                            | next,Range(rbl,rbh)::tail when next >= rbl -> Some([||],(rbh + 1u,tail))
-                            | next,Range(rbl,rbh)::_    when next < rbl && rbh = System.UInt32.MaxValue -> Some([|next..rbl-1u|],(rbh,[]))
-                            | next,Range(rbl,rbh)::tail when next < rbl -> Some([|next..rbl-1u|],(rbh + 1u,tail))
+                            | next,Range(loB,hiB)::_ when next >= loB && hiB = System.UInt32.MaxValue -> None
+                            | next,Range(loB,hiB)::tail when next >= loB -> Some([||],(hiB + 1u,tail))
+                            | next,Range(loB,hiB)::_    when next < loB && hiB = System.UInt32.MaxValue -> Some([|next..loB-1u|],(hiB,[]))
+                            | next,Range(loB,hiB)::tail when next < loB -> Some([|next..loB-1u|],(hiB + 1u,tail))
                        ) (0u,invalid) 
             |> Seq.filter ((=) [||] >> not)
             |> Seq.collect id
