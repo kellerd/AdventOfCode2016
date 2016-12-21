@@ -42,7 +42,7 @@ let solve input =
     |> Seq.collect (fun arr -> arr
                                |> Array.map (fun (ind,s:string) -> ind,s.Replace(text,"")))
 let part1 input = solve input |> Seq.head
-let part2 input = solve input |> Seq.sortByDescending (snd >> String.length) |> Seq.take 1 |> Seq.head |> snd |> String.length 
+let part2 input = solve input |> Seq.map (snd >> String.length) |> Seq.max
 
 
 part2 [|(0,0),"yjjvjgan"|]
