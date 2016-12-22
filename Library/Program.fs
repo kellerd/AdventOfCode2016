@@ -40,7 +40,12 @@ module Library =
         match s.IndexOf(p) with
         | -1 -> None
         | index -> Some (s.Substring(0,index), s.Substring(index))
-
+    let (|Char|_|) input = 
+        input
+        |> Char.TryParse
+        |> function 
+        | true, c -> Some c
+        | _ -> None
     let (|Int|_|) input = 
         input
         |> Int32.TryParse
@@ -53,7 +58,7 @@ module Library =
         |> function 
         | true, int -> Some int
         | _ -> None
-
+    
     open System.Text.RegularExpressions
     open System.Collections.Generic
 
