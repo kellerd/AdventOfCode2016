@@ -32,6 +32,10 @@ let combos =
                                 |> Array.map (fun B -> [|A;B|] |> Array.sort) )
     |> Array.distinct
     |> Array.length
+let pair A B =
+    if A.used <= B.avail && B <> A then
+        Some ({A with used=0;avail=A.size;goal=B.goal},  {B with used=B.used+A.used;avail=B.size-B.used-A.used;goal=A.goal})
+    else None
 let nodes2D = 
     nodes
     |> Array.sortBy (fun n -> n.y,n.x)
@@ -45,12 +49,12 @@ let maxY = Array2D.length2 nodes2D - 1
 let swap (nodes2D:Node[,]) (x1,y1) (x2,y2) = 
     if y2 > maxY || x2 > maxX then None
     else
-        let A = nodes2D.[x1,y1]
-        let B = nodes2D.[x2,y2]
-        if  A.used <= B.avail then
-            let newState = Array2D.copy nodes2D
-            newState.[x1,y1] <- {A with used=0;avail=A.avail;goal=B.goal}
-            newState.[x2,y2] <- {nodes2D.[x2,y2] with used=}
+        pair nodes2D.[x1,y1] nodes2D.[x2,y2]
+        |> Option.map (fun (A,B) -> 
+                        let newState = Array2D.copy nodes2D
+                        newState.[x1,y1] <- A
+                        newState.[x2,y2] <- B
+                        newState)
 
 let nextPlaces nodes2D (x,y) = 
     if x = 0 && y = 0 then Seq.empty
