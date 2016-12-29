@@ -12,14 +12,14 @@ let mapChars = function
     | '.' -> Space
     | CInt x -> Interface x
 
-let onlyOnce f =
+let onlyOnce2 f =
     let cache = System.Collections.Generic.HashSet<_>()
-    fun x ->
+    fun x y ->
         printfn "%A" cache.Count
         if cache.Contains(x) then None
         else 
             cache.Add(x) |> ignore
-            Some (f x)
+            Some (f x y)
 
 let testData = @"###########
 #0.1.....2#
@@ -62,7 +62,7 @@ let bfs candidate =
                     else Some (current,nextVals)
                 ) 
 
-let nextVals nodes (y,x,d,n) =
+let nextVals nodes d (y,x,n) =
     adjacent (y,x,d,n)
     |> Seq.filter (fun (y,x,d,n) -> 
                     match Array2D.get nodes y x with
@@ -74,6 +74,6 @@ let nextVals nodes (y,x,d,n) =
                     | Space -> true
     )
     
-let nextVals' data = onlyOnce (nextVals data)
-let nextVals'' = nextVals' data
-nextVals'' (1,1,1,0) |> Option.map(Seq.toList)
+//let nextVals' = onlyOnce2 (nextVals data)
+
+//nextVals' 1 (1,1,0) |> Option.map(Seq.toList)
