@@ -51,6 +51,7 @@ module Library =
         |> Int32.TryParse
         |> function 
         | true, int -> Some int
+        | _ -> None
 
     let (|CInt|_|) (input:char) = 
         Convert.ToString(input)
