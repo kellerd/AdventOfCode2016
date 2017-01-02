@@ -3,8 +3,6 @@ open System
 open System.Numerics
 #r "bin/Debug/Library.dll"
 open Advent.Library
-#r "../packages/FSharp.Collections.ParallelSeq/lib/net40/FSharp.Collections.ParallelSeq.dll"
-open FSharp.Collections.ParallelSeq
 
 let (|REG|_|) = function
    | "a" -> Some 0
@@ -36,56 +34,39 @@ let toggle  = function
     | Out(v) | Dec (v) | Toggle(v) -> Inc(v)
     | Jump (v,i) -> Copy(v,i)
 let doWork registers instructions  = seq {
-    let (|RegVal|_|) = function
-        | Register (REG ind) -> Some (Array.item ind registers)
-        | _ -> None
     let (|AnyVal|_|) = function
         | Register (REG ind) -> Some (Array.item ind registers)
         | Value (d) -> Some d
-        | _ -> None
-    let (|Multiply|_|) (instructions:_[]) start  =
-        match instructions |> Array.skip start |> Array.truncate 6 with
-        | [| Copy(AnyVal(b),Register c)
-             Inc(Register a)
-             Dec(Register c')
-             Jump(Register c'',AnyVal -2)
-             Dec(Register d)
-             Jump(Register d' as dreg, AnyVal -5) |]
-            when c = c' && c = c'' && d = d' && d <> a && d <> c
-            -> dreg |> function RegVal d -> (a,c,d',(b * d)) |> Some | _ -> None
         | _ -> None
     let (|Instr|) (instructions:_[]) start =
         Array.item start instructions
     while registers.[4] < (Array.length instructions) do
         let instrNumber = registers.[4] |> int 
         match instrNumber with
-        | Multiply instructions (REG a,REG c,REG d,result) -> registers.[a] <- registers.[a] + result; registers.[c] <- 0; registers.[d] <- 0; registers.[4] <- registers.[4] + 6
-        | Instr instructions (Copy(Value d, Register(REG ind)) )
-        | Instr instructions (Copy(RegVal d, Register(REG ind))) -> registers.[ind] <- d; registers.[4] <- registers.[4] + 1
+        | Instr instructions (Copy(AnyVal d, Register(REG ind))) -> registers.[ind] <- d; registers.[4] <- registers.[4] + 1
         | Instr instructions (Inc(Register (REG ind)))-> registers.[ind] <- registers.[ind] + 1; registers.[4] <- registers.[4] + 1
         | Instr instructions (Dec(Register (REG ind)))-> registers.[ind] <- registers.[ind] - 1; registers.[4] <- registers.[4] + 1
-        | Instr instructions (Jump(Value d,Value instructionsJump)  )
-        | Instr instructions (Jump(Value d,RegVal instructionsJump) )
-        | Instr instructions (Jump(RegVal d,RegVal instructionsJump)) 
-        | Instr instructions (Jump(RegVal d,Value instructionsJump) )-> if d = 0 then registers.[4] <- registers.[4] + 1
-                                                                        else registers.[4] <- registers.[4] + instructionsJump
-        | Instr instructions (Toggle(RegVal d)) | Instr instructions (Toggle(Value d)) when registers.[4] + d < instructions.Length -> instructions.[registers.[4] + d] <- toggle instructions.[registers.[4] + d]; registers.[4] <- registers.[4] + 1
-        | Instr instructions (Out (RegVal d)  ) | Instr instructions (Out(Value d)   ) -> yield d
+        | Instr instructions (Jump(AnyVal d,AnyVal instructionsJump) )-> if d = 0 then registers.[4] <- registers.[4] + 1
+                                                                         else registers.[4] <- registers.[4] + instructionsJump
+        | Instr instructions (Toggle(AnyVal d)) when registers.[4] + d < instructions.Length -> instructions.[registers.[4] + d] <- toggle instructions.[registers.[4] + d]; registers.[4] <- registers.[4] + 1
+        | Instr instructions (Out (AnyVal d)  ) -> yield d; registers.[4] <- registers.[4] + 1
         | x -> printfn "Didn't do %A" x; registers.[4] <- registers.[4] + 1
 }
-
 
 let file = "\input.txt"
 let instructions = File.ReadAllLines(__SOURCE_DIRECTORY__ + file) |> Array.map parse 
 let genSignal = (fun i -> 
                         let signal = doWork [| i;0;0;0;0 |] instructions
-                        if signal |> Seq.take 2 |> Seq.chunkBySize 2 |> Seq.take 3 |> Seq.forall (fun [|x;y|] -> x = 0 && y = 1) then (i,true,signal)
-                        else (i,false,signal))
+                        if signal |> Seq.chunkBySize 2 |> Seq.take 1000 |> Seq.forall (fun [|x;y|] -> x = 0 && y = 1) then (i,true)
+                        else (i,false))
 
 Seq.initInfinite genSignal 
-|> Seq.skipWhile(fun (x,y,z) -> not y)
+|> Seq.skipWhile (snd >> not)
 |> Seq.take 1
-|> Seq.map(fun(n,_,z) -> n,z |> Seq.take 10 |> Seq.toList)
-|> Seq.toList
+|> Seq.map(fst)
+|> Seq.head
 
-genSignal 198
+
+
+
+
